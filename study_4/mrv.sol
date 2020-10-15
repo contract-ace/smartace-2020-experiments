@@ -1,3 +1,4 @@
+// After manual preprocessing.
 interface IERC20 {
   function totalSupply() external view returns (uint256);
 
@@ -232,7 +233,7 @@ contract Ownable {
 }
 
 contract HasNoTokens is Ownable {
-  // Should be sliced by static analysis.
+  // Should be sliced by static analysis (ECF).
   // Without slicing this is loosely coupled.
   /*function reclaimToken(address tokenAddr) external onlyOwner {
     IERC20 tokenInst = IERC20(tokenAddr);
@@ -243,7 +244,7 @@ contract HasNoTokens is Ownable {
 }
 
 contract HasNoContracts is Ownable {
-  // Should be sliced by static analysis.
+  // Should be sliced by static analysis (ECF).
   // Without slicing this is loosely coupled.
   /*function reclaimContract(address contractAddr) external onlyOwner {
     Ownable contractInst = Ownable(contractAddr);

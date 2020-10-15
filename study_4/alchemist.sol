@@ -1,3 +1,4 @@
+// After manual preprocessing.
 interface IERC20 {
     function totalSupply() external view returns (uint256);
     function balanceOf(address who) external view returns (uint256);

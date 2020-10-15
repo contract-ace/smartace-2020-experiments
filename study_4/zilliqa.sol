@@ -1,3 +1,4 @@
+// After manual preprocessing.
 contract ERC20Basic {
   uint256 public totalSupply;
   function balanceOf(address who) public view returns (uint256);
@@ -233,6 +234,7 @@ contract ZilliqaToken is PausableToken {
     // If token is not Zilliqa then this is a no-op.
     // If token is Zilliqa, then transfer fails valid destination, which is a no-op.
     // Hence, this is a no-op in any network configuration.
+    // As before, ECF.
     /*function emergencyERC20Drain( ERC20 token, uint amount ) public onlyOwner {
         token.transfer( owner, amount );
     }*/

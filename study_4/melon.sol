@@ -1,3 +1,4 @@
+// After manual preprocessing.
 interface IERC20 {
     function totalSupply() external view returns (uint256);
     function balanceOf(address who) external view returns (uint256);
@@ -12,6 +13,7 @@ interface IERC20 {
 }
 
 library SafeMath {
+    // Unused.
     // int256 constant private INT256_MIN = -2**255;
 
     function mul(uint256 a, uint256 b) internal pure returns (uint256) {
@@ -202,6 +204,7 @@ contract ERC20Detailed is IERC20 {
 contract Melon is ERC20Burnable, ERC20Detailed {
     using SafeMath for uint;
 
+    // Reduced.
     //uint public constant BASE_UNITS = 10 ** 18;
     uint public constant INFLATION_ENABLE_DATE = 1551398400;
     //uint public constant INITIAL_TOTAL_SUPPLY = uint(932613).mul(BASE_UNITS);
