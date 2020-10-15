@@ -352,7 +352,9 @@ void run_model(void) {
     if (contract_1->user_state.v != 1) {
       sol_assert(contract_1->model_balance.v >= contract_1->user_deposits.sum.v, 0);
     }
+    sol_uint256_t sum = contract_1->user_deposits.sum;
     contract_1->user_deposits = ND_Map_1();
+    contract_1->user_deposits.sum = sum;
     if (GET_ND_RANGE(38, 0, 2, "take_step")) {
       ((blocknum).v) = (GET_ND_INCREASE(36, (blocknum).v, 1, "blocknum"));
       ((timestamp).v) = (GET_ND_INCREASE(37, (timestamp).v, 1, "timestamp"));
