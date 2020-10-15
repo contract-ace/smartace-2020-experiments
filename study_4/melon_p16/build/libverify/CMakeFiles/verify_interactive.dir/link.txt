@@ -1,0 +1,2 @@
+/usr/bin/ar qc libverify_interactive.a  CMakeFiles/verify_interactive.dir/verify_interactive.cpp.o
+/usr/bin/ranlib libverify_interactive.a
