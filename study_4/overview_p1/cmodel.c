@@ -1,4 +1,5 @@
 #include "cmodel.h"
+#include "stdio.h"
 GHOST_VAR sol_uint256_t prev_bal;
 GHOST_VAR sol_uint256_t post_bal;
 GHOST_VAR sol_uint256_t prev_dep;
@@ -9,7 +10,10 @@ sol_uint256_t sol_pay(sol_uint256_t *bal, sol_uint256_t amt) {
   ((bal)->v) -= ((amt).v);
   return amt;
 }
-uint8_t sol_send(sol_uint256_t *bal, sol_address_t dst, sol_uint256_t amt) {
+uint8_t sol_send(sol_address_t sender, sol_uint256_t value,
+                 sol_uint256_t blocknum, sol_uint256_t timestamp,
+                 sol_bool_t paid, sol_address_t origin, sol_address_t src,
+                 sol_uint256_t *bal, sol_address_t dst, sol_uint256_t amt) {
   if (((bal)->v) < ((amt).v))
     return 0;
   if (((dst).v) == (0)) {
@@ -18,11 +22,19 @@ uint8_t sol_send(sol_uint256_t *bal, sol_address_t dst, sol_uint256_t amt) {
   if (((dst).v) == (1)) {
     return 0;
   }
+  if (((dst).v) == (2)) {
+    return 0;
+  }
   ((bal)->v) -= ((amt).v);
   return GET_ND_BYTE(0, "Return value for send/transfer.");
 }
-void sol_transfer(sol_uint256_t *bal, sol_address_t dst, sol_uint256_t amt) {
-  sol_require(sol_send(bal, dst, amt), "Transfer failed.");
+void sol_transfer(sol_address_t sender, sol_uint256_t value,
+                  sol_uint256_t blocknum, sol_uint256_t timestamp,
+                  sol_bool_t paid, sol_address_t origin, sol_address_t src,
+                  sol_uint256_t *bal, sol_address_t dst, sol_uint256_t amt) {
+  sol_require(sol_send(sender, value, blocknum, timestamp, Init_sol_bool_t(0),
+                       origin, src, bal, dst, amt),
+              "Transfer failed.");
 }
 struct Map_1 {
   sol_uint256_t data_0;
@@ -51,10 +63,8 @@ struct Crowdsale {
   sol_uint256_t user_closeTime;
 };
 struct Map_1 ZeroInit_Map_1(void);
-struct Map_1 ND_Map_1(void);
 sol_uint256_t Read_Map_1(struct Map_1 *arr, sol_address_t key_0);
 void Write_Map_1(struct Map_1 *arr, sol_address_t key_0, sol_uint256_t dat);
-void Set_Map_1(struct Map_1 *arr, sol_address_t key_0, sol_uint256_t dat);
 void Crowdsale_Constructor(struct Crowdsale *self, sol_address_t sender,
                            sol_uint256_t value, sol_uint256_t blocknum,
                            sol_uint256_t timestamp, sol_bool_t paid,
@@ -74,16 +84,6 @@ void Init_Crowdsale(struct Crowdsale *self, sol_address_t sender,
   ((self)->user_closeTime) = (Init_sol_uint256_t(((timestamp).v) + (2592000)));
   Crowdsale_Constructor(self, sender, value, blocknum, timestamp,
                         Init_sol_bool_t(0), origin);
-}
-void ND_Crowdsale(struct Crowdsale *self) {
-  ((self)->model_balance) =
-      (Init_sol_uint256_t(GET_ND_UINT(1, 256, "Crowdsale:model_balance")));
-  ((self)->user_raised) =
-      (Init_sol_uint256_t(GET_ND_UINT(2, 256, "Crowdsale:raised")));
-  ((self)->user_goal) =
-      (Init_sol_uint256_t(GET_ND_UINT(3, 256, "Crowdsale:goal")));
-  ((self)->user_closeTime) =
-      (Init_sol_uint256_t(GET_ND_UINT(4, 256, "Crowdsale:closeTime")));
 }
 void Crowdsale_Method_invest(struct Crowdsale *self, sol_address_t sender,
                              sol_uint256_t value, sol_uint256_t blocknum,
@@ -127,18 +127,6 @@ struct Map_1 ZeroInit_Map_1(void) {
   ((tmp).data_5) = (Init_sol_uint256_t(0));
   ((tmp).data_6) = (Init_sol_uint256_t(0));
   ((tmp).data_7) = (Init_sol_uint256_t(0));
-  return tmp;
-}
-struct Map_1 ND_Map_1(void) {
-  struct Map_1 tmp;
-  ((tmp).data_0) = (Init_sol_uint256_t(GET_ND_UINT(5, 256, "Map_1:data_0")));
-  ((tmp).data_1) = (Init_sol_uint256_t(GET_ND_UINT(6, 256, "Map_1:data_1")));
-  ((tmp).data_2) = (Init_sol_uint256_t(GET_ND_UINT(7, 256, "Map_1:data_2")));
-  ((tmp).data_3) = (Init_sol_uint256_t(GET_ND_UINT(8, 256, "Map_1:data_3")));
-  ((tmp).data_4) = (Init_sol_uint256_t(GET_ND_UINT(9, 256, "Map_1:data_4")));
-  ((tmp).data_5) = (Init_sol_uint256_t(GET_ND_UINT(10, 256, "Map_1:data_5")));
-  ((tmp).data_6) = (Init_sol_uint256_t(GET_ND_UINT(11, 256, "Map_1:data_6")));
-  ((tmp).data_7) = (Init_sol_uint256_t(GET_ND_UINT(12, 256, "Map_1:data_7")));
   return tmp;
 }
 sol_uint256_t Read_Map_1(struct Map_1 *arr, sol_address_t key_0) {
@@ -185,9 +173,6 @@ void Write_Map_1(struct Map_1 *arr, sol_address_t key_0, sol_uint256_t dat) {
     }
   }
 }
-void Set_Map_1(struct Map_1 *arr, sol_address_t key_0, sol_uint256_t dat) {
-  Write_Map_1(arr, key_0, dat);
-}
 void Escrow_Constructor(struct Escrow *self, sol_address_t sender,
                         sol_uint256_t value, sol_uint256_t blocknum,
                         sol_uint256_t timestamp, sol_bool_t paid,
@@ -205,16 +190,6 @@ void Init_Escrow(struct Escrow *self, sol_address_t sender, sol_uint256_t value,
   ((self)->user_beneficiary) = (Init_sol_address_t(0));
   Escrow_Constructor(self, sender, value, blocknum, timestamp,
                      Init_sol_bool_t(0), origin, user_b);
-}
-void ND_Escrow(struct Escrow *self) {
-  ((self)->model_balance) =
-      (Init_sol_uint256_t(GET_ND_UINT(13, 256, "Escrow:model_balance")));
-  ((self)->user_deposits) = (ND_Map_1());
-  ((self)->user_state) = (Init_sol_uint8_t(GET_ND_UINT(14, 8, "Escrow:state")));
-  ((self)->user_owner) =
-      (Init_sol_address_t(GET_ND_RANGE(15, 0, 8, "Escrow:owner")));
-  ((self)->user_beneficiary) =
-      (Init_sol_address_t(GET_ND_RANGE(16, 0, 8, "Escrow:beneficiary")));
 }
 void Escrow_Method_1_deposit(struct Escrow *self, sol_address_t sender,
                              sol_uint256_t value, sol_uint256_t blocknum,
@@ -242,7 +217,8 @@ void Escrow_Method_withdraw(struct Escrow *self, sol_address_t sender,
                             sol_uint256_t timestamp, sol_bool_t paid,
                             sol_address_t origin) {
   sol_require(((self->user_state).v) == (1), 0);
-  sol_transfer(&((self)->model_balance),
+  sol_transfer(sender, value, blocknum, timestamp, Init_sol_bool_t(0), origin,
+               (self)->model_address, &((self)->model_balance),
                Init_sol_address_t((self->user_beneficiary).v),
                Init_sol_uint256_t(((self)->model_balance).v));
 }
@@ -257,7 +233,9 @@ void Escrow_Method_claimRefund(struct Escrow *self, sol_address_t sender,
           .v);
   Write_Map_1(&(self->user_deposits), Init_sol_address_t((func_user_p).v),
               Init_sol_uint256_t(0));
-  sol_transfer(&((self)->model_balance), Init_sol_address_t((func_user_p).v),
+  sol_transfer(sender, value, blocknum, timestamp, Init_sol_bool_t(0), origin,
+               (self)->model_address, &((self)->model_balance),
+               Init_sol_address_t((func_user_p).v),
                Init_sol_uint256_t((func_user_amount).v));
 }
 void Escrow_Method_1_close(struct Escrow *self, sol_address_t sender,
@@ -289,128 +267,154 @@ void Escrow_Method_refund(struct Escrow *self, sol_address_t sender,
                          Init_sol_bool_t(0), origin);
 }
 void run_model(void) {
+  sol_address_t last_sender;
   sol_uint256_t blocknum;
-  ((blocknum).v) = (GET_ND_UINT(28, 256, "blocknum"));
+  ((blocknum).v) = (GET_ND_UINT(12, 256, "blocknum"));
   sol_uint256_t timestamp;
-  ((timestamp).v) = (GET_ND_UINT(29, 256, "timestamp"));
+  ((timestamp).v) = (GET_ND_UINT(13, 256, "timestamp"));
   sol_bool_t paid;
   ((paid).v) = (1);
-  struct Crowdsale contract_0;
-  struct Escrow *contract_1;
+  struct Crowdsale contract_1;
+  struct Escrow *contract_2;
   smartace_log("[Handling constants]");
   (g_literal_address_0) = (0);
   (g_literal_address_3735928559) =
-      (GET_ND_RANGE(30, 1, 4, "g_literal_address_3735928559"));
-  (((contract_0).model_address).v) = (1);
-  (contract_1) = (&((contract_0).user_escrow));
-  (((contract_1)->model_address).v) = (2);
-  (((contract_1)->user_owner).v) = (0);
-  (((contract_1)->user_beneficiary).v) = (0);
-  smartace_log("[Initializing contract_0 and children]");
-  if (GET_ND_RANGE(33, 0, 2, "take_step")) {
-    ((blocknum).v) = (GET_ND_INCREASE(31, (blocknum).v, 1, "blocknum"));
-    ((timestamp).v) = (GET_ND_INCREASE(32, (timestamp).v, 1, "timestamp"));
+      (GET_ND_RANGE(14, 1, 4, "g_literal_address_3735928559"));
+  (((contract_1).model_address).v) = (1);
+  (contract_2) = (&((contract_1).user_escrow));
+  (((contract_2)->model_address).v) = (2);
+  (((contract_2)->user_owner).v) = (0);
+  (((contract_2)->user_beneficiary).v) = (0);
+  smartace_log("[Initializing contract_1 and children]");
+  if (GET_ND_RANGE(17, 0, 2, "take_step")) {
+    ((blocknum).v) = (GET_ND_INCREASE(15, (blocknum).v, 1, "blocknum"));
+    ((timestamp).v) = (GET_ND_INCREASE(16, (timestamp).v, 1, "timestamp"));
   }
   {
     sol_address_t sender;
-    ((sender).v) = (GET_ND_RANGE(34, 3, 8, "sender"));
+    ((sender).v) = (GET_ND_RANGE(18, 3, 8, "sender"));
+    ((last_sender).v) = ((sender).v);
     sol_uint256_t value;
     ((value).v) = (0);
-    Init_Crowdsale(&(contract_0), sender, value, blocknum, timestamp, paid,
+    Init_Crowdsale(&(contract_1), sender, value, blocknum, timestamp, paid,
                    sender);
   }
   smartace_log("[Entering transaction loop]");
   while (sol_continue()) {
     sol_on_transaction();
-    contract_1->user_deposits = ND_Map_1();
-    if (GET_ND_RANGE(37, 0, 2, "take_step")) {
-      ((blocknum).v) = (GET_ND_INCREASE(35, (blocknum).v, 1, "blocknum"));
-      ((timestamp).v) = (GET_ND_INCREASE(36, (timestamp).v, 1, "timestamp"));
+    if (sol_is_using_reps()) {
+      (((contract_2)->user_deposits).data_0) =
+          (Init_sol_uint256_t(GET_ND_UINT(19, 256, "Escrow::deposits::_0")));
+      (((contract_2)->user_deposits).data_1) =
+          (Init_sol_uint256_t(GET_ND_UINT(20, 256, "Escrow::deposits::_1")));
+      (((contract_2)->user_deposits).data_2) =
+          (Init_sol_uint256_t(GET_ND_UINT(21, 256, "Escrow::deposits::_2")));
+      (((contract_2)->user_deposits).data_3) =
+          (Init_sol_uint256_t(GET_ND_UINT(22, 256, "Escrow::deposits::_3")));
+      (((contract_2)->user_deposits).data_4) =
+          (Init_sol_uint256_t(GET_ND_UINT(23, 256, "Escrow::deposits::_4")));
+      (((contract_2)->user_deposits).data_5) =
+          (Init_sol_uint256_t(GET_ND_UINT(24, 256, "Escrow::deposits::_5")));
+      (((contract_2)->user_deposits).data_6) =
+          (Init_sol_uint256_t(GET_ND_UINT(25, 256, "Escrow::deposits::_6")));
+      (((contract_2)->user_deposits).data_7) =
+          (Init_sol_uint256_t(GET_ND_UINT(26, 256, "Escrow::deposits::_7")));
+    }
+    if (GET_ND_RANGE(29, 0, 2, "take_step")) {
+      ((blocknum).v) = (GET_ND_INCREASE(27, (blocknum).v, 1, "blocknum"));
+      ((timestamp).v) = (GET_ND_INCREASE(28, (timestamp).v, 1, "timestamp"));
     }
     uint8_t next_call;
-    (next_call) = (GET_ND_RANGE(38, 0, 7, "next_call"));
+    (next_call) = (GET_ND_RANGE(30, 0, 7, "next_call"));
     switch (next_call) {
     case 0: {
-      smartace_log("[Calling invest() on contract_0]");
+      smartace_log("[Calling invest() on contract_1]");
       sol_address_t sender;
-      ((sender).v) = (GET_ND_RANGE(17, 3, 8, "sender"));
+      ((sender).v) = (GET_ND_RANGE(1, 3, 8, "sender"));
+      ((last_sender).v) = ((sender).v);
       sol_uint256_t value;
       ((value).v) = (0);
-      ((value).v) = (GET_ND_UINT(18, 256, "value"));
-      Crowdsale_Method_invest(&(contract_0), sender, value, blocknum, timestamp,
+      ((value).v) = (GET_ND_UINT(2, 256, "value"));
+      Crowdsale_Method_invest(&(contract_1), sender, value, blocknum, timestamp,
                               paid, sender);
       smartace_log("[Call successful]");
       break;
     }
     case 1: {
-      smartace_log("[Calling close() on contract_0]");
+      smartace_log("[Calling close() on contract_1]");
       sol_address_t sender;
-      ((sender).v) = (GET_ND_RANGE(19, 3, 8, "sender"));
+      ((sender).v) = (GET_ND_RANGE(3, 3, 8, "sender"));
+      ((last_sender).v) = ((sender).v);
       sol_uint256_t value;
       ((value).v) = (0);
-      Crowdsale_Method_close(&(contract_0), sender, value, blocknum, timestamp,
+      Crowdsale_Method_close(&(contract_1), sender, value, blocknum, timestamp,
                              paid, sender);
       smartace_log("[Call successful]");
       break;
     }
     case 2: {
-      smartace_log("[Calling deposit(p) on contract_1]");
+      smartace_log("[Calling deposit(p) on contract_2]");
       sol_address_t sender;
-      ((sender).v) = (GET_ND_RANGE(20, 3, 8, "sender"));
+      ((sender).v) = (GET_ND_RANGE(4, 3, 8, "sender"));
+      ((last_sender).v) = ((sender).v);
       sol_uint256_t value;
       ((value).v) = (0);
-      ((value).v) = (GET_ND_UINT(21, 256, "value"));
-      sol_address_t arg_p = Init_sol_address_t(GET_ND_RANGE(22, 0, 8, "p"));
-      Escrow_Method_deposit(contract_1, sender, value, blocknum, timestamp,
+      ((value).v) = (GET_ND_UINT(5, 256, "value"));
+      sol_address_t arg_p = Init_sol_address_t(GET_ND_RANGE(6, 0, 8, "p"));
+      Escrow_Method_deposit(contract_2, sender, value, blocknum, timestamp,
                             paid, sender, arg_p);
       smartace_log("[Call successful]");
       break;
     }
     case 3: {
-      smartace_log("[Calling withdraw() on contract_1]");
+      smartace_log("[Calling withdraw() on contract_2]");
       sol_address_t sender;
-      ((sender).v) = (GET_ND_RANGE(23, 3, 8, "sender"));
+      ((sender).v) = (GET_ND_RANGE(7, 3, 8, "sender"));
+      ((last_sender).v) = ((sender).v);
       sol_uint256_t value;
       ((value).v) = (0);
-      Escrow_Method_withdraw(contract_1, sender, value, blocknum, timestamp,
+      Escrow_Method_withdraw(contract_2, sender, value, blocknum, timestamp,
                              paid, sender);
       smartace_log("[Call successful]");
       break;
     }
     case 4: {
-      smartace_log("[Calling claimRefund(p) on contract_1]");
+      smartace_log("[Calling claimRefund(p) on contract_2]");
       sol_address_t sender;
-      ((sender).v) = (GET_ND_RANGE(24, 3, 8, "sender"));
-      prev_bal = contract_1->model_balance;
-      prev_dep = Read_Map_1(&contract_1->user_deposits, sender);
+      ((sender).v) = (GET_ND_RANGE(8, 3, 8, "sender"));
+      ((last_sender).v) = ((sender).v);
       sol_uint256_t value;
       ((value).v) = (0);
-      sol_address_t arg_p = Init_sol_address_t(GET_ND_RANGE(25, 0, 8, "p"));
-      Escrow_Method_claimRefund(contract_1, sender, value, blocknum, timestamp,
+      sol_address_t arg_p = Init_sol_address_t(GET_ND_RANGE(9, 0, 8, "p"));
+      prev_bal = contract_2->model_balance;
+      prev_dep = Read_Map_1(&contract_2->user_deposits, arg_p);
+      Escrow_Method_claimRefund(contract_2, sender, value, blocknum, timestamp,
                                 paid, sender, arg_p);
-      post_bal = contract_1->model_balance;
-      sol_assert(post_bal.v = prev_bal.v - prev_dep.v, "");
+      post_bal = contract_2->model_balance;
+      sol_assert(post_bal.v == prev_bal.v - prev_dep.v, "Property");
       smartace_log("[Call successful]");
       break;
     }
     case 5: {
-      smartace_log("[Calling close() on contract_1]");
+      smartace_log("[Calling close() on contract_2]");
       sol_address_t sender;
-      ((sender).v) = (GET_ND_RANGE(26, 3, 8, "sender"));
+      ((sender).v) = (GET_ND_RANGE(10, 3, 8, "sender"));
+      ((last_sender).v) = ((sender).v);
       sol_uint256_t value;
       ((value).v) = (0);
-      Escrow_Method_close(contract_1, sender, value, blocknum, timestamp, paid,
+      Escrow_Method_close(contract_2, sender, value, blocknum, timestamp, paid,
                           sender);
       smartace_log("[Call successful]");
       break;
     }
     case 6: {
-      smartace_log("[Calling refund() on contract_1]");
+      smartace_log("[Calling refund() on contract_2]");
       sol_address_t sender;
-      ((sender).v) = (GET_ND_RANGE(27, 3, 8, "sender"));
+      ((sender).v) = (GET_ND_RANGE(11, 3, 8, "sender"));
+      ((last_sender).v) = ((sender).v);
       sol_uint256_t value;
       ((value).v) = (0);
-      Escrow_Method_refund(contract_1, sender, value, blocknum, timestamp, paid,
+      Escrow_Method_refund(contract_2, sender, value, blocknum, timestamp, paid,
                            sender);
       smartace_log("[Call successful]");
       break;
