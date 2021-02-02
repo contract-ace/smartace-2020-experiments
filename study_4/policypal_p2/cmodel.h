@@ -2,8 +2,14 @@
 #include "primitive.h"
 void run_model(void);
 sol_uint256_t sol_pay(sol_uint256_t *bal, sol_uint256_t amt);
-uint8_t sol_send(sol_uint256_t *bal, sol_address_t dst, sol_uint256_t amt);
-void sol_transfer(sol_uint256_t *bal, sol_address_t dst, sol_uint256_t amt);
+uint8_t sol_send(sol_address_t sender, sol_uint256_t value,
+                 sol_uint256_t blocknum, sol_uint256_t timestamp,
+                 sol_bool_t paid, sol_address_t origin, sol_address_t src,
+                 sol_uint256_t *bal, sol_address_t dst, sol_uint256_t amt);
+void sol_transfer(sol_address_t sender, sol_uint256_t value,
+                  sol_uint256_t blocknum, sol_uint256_t timestamp,
+                  sol_bool_t paid, sol_address_t origin, sol_address_t src,
+                  sol_uint256_t *bal, sol_address_t dst, sol_uint256_t amt);
 struct Map_2;
 struct Map_1;
 struct PolicyPalNetworkToken;
@@ -71,7 +77,6 @@ void Init_PolicyPalNetworkCrowdsale(
     sol_uint256_t user___saleEndTime,
     sol_uint256_t user___increaseMaxContribTime, sol_uint256_t user___rate,
     sol_uint256_t user___minContribution, sol_uint256_t user___maxContribution);
-void ND_PolicyPalNetworkCrowdsale(struct PolicyPalNetworkCrowdsale *self);
 void PolicyPalNetworkCrowdsale_Fallback(struct PolicyPalNetworkCrowdsale *self,
                                         sol_address_t sender,
                                         sol_uint256_t value,
@@ -170,7 +175,6 @@ void Init_PolicyPalNetworkToken(struct PolicyPalNetworkToken *self,
                                 sol_bool_t paid, sol_address_t origin,
                                 sol_uint256_t user___tokenTotalAmount,
                                 sol_address_t user___adminAddr);
-void ND_PolicyPalNetworkToken(struct PolicyPalNetworkToken *self);
 void PolicyPalNetworkToken_Method_1_toggleTransferable(
     struct PolicyPalNetworkToken *self, sol_address_t sender,
     sol_uint256_t value, sol_uint256_t blocknum, sol_uint256_t timestamp,

@@ -262,6 +262,9 @@ contract ZCrowdsale is Ownable{
     tokenDecimals = 2;
     // As ** is unsupported, hard-coded it.
     mintedTokensCap = _mintedTokensCap.mul(100);
+
+    // In VerX _wallet is fixed before constructing the crowdsale.
+    require(_wallet != address(this), "VerX Implicit Requirement");
   }
 
   function () external payable {
