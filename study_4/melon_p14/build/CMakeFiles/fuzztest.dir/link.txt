@@ -1,1 +1,0 @@
-/usr/bin/c++    -rdynamic CMakeFiles/fuzztest.dir/cmodel.cpp.o CMakeFiles/fuzztest.dir/libverify/verify_libfuzzer.cpp.o  -o fuzztest  -fsanitize=fuzzer,address 
