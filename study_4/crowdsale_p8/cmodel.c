@@ -2141,6 +2141,22 @@ void run_model(void) {
           GET_ND_UINT(162, 256, "RefundEscrow::_deposits::_6")));
       (((contract_3)->user___deposits).data_7) = (Init_sol_uint256_t(
           GET_ND_UINT(163, 256, "RefundEscrow::_deposits::_7")));
+      contract_2->user___minters.user_bearer.data_0 = Init_sol_bool_t(
+          GET_ND_RANGE(500, 0, 2, "SampleCrowdsaleToken::_bearer::_0"));
+      contract_2->user___minters.user_bearer.data_1 = Init_sol_bool_t(
+          GET_ND_RANGE(501, 0, 2, "SampleCrowdsaleToken::_bearer::_1"));
+      contract_2->user___minters.user_bearer.data_2 = Init_sol_bool_t(
+          GET_ND_RANGE(502, 0, 2, "SampleCrowdsaleToken::_bearer::_2"));
+      contract_2->user___minters.user_bearer.data_3 = Init_sol_bool_t(
+          GET_ND_RANGE(503, 0, 2, "SampleCrowdsaleToken::_bearer::_3"));
+      contract_2->user___minters.user_bearer.data_4 = Init_sol_bool_t(
+          GET_ND_RANGE(504, 0, 2, "SampleCrowdsaleToken::_bearer::_4"));
+      contract_2->user___minters.user_bearer.data_5 = Init_sol_bool_t(
+          GET_ND_RANGE(505, 0, 2, "SampleCrowdsaleToken::_bearer::_5"));
+      contract_2->user___minters.user_bearer.data_6 = Init_sol_bool_t(
+          GET_ND_RANGE(506, 0, 2, "SampleCrowdsaleToken::_bearer::_6"));
+      contract_2->user___minters.user_bearer.data_7 = Init_sol_bool_t(
+          GET_ND_RANGE(507, 0, 2, "SampleCrowdsaleToken::_bearer::_7"));
     }
     if (GET_ND_RANGE(166, 0, 2, "take_step")) {
       ((blocknum).v) = (GET_ND_INCREASE(164, (blocknum).v, 1, "blocknum"));

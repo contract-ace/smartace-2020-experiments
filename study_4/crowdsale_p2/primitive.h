@@ -168,6 +168,14 @@ extern sol_raw_uint256_t sea_nd_164(void);
 extern sol_raw_uint256_t sea_nd_165(void);
 extern sol_raw_uint8_t sea_nd_166(void);
 extern sol_raw_uint8_t sea_nd_167(void);
+extern sol_raw_uint8_t sea_nd_500(void);
+extern sol_raw_uint8_t sea_nd_501(void);
+extern sol_raw_uint8_t sea_nd_502(void);
+extern sol_raw_uint8_t sea_nd_503(void);
+extern sol_raw_uint8_t sea_nd_504(void);
+extern sol_raw_uint8_t sea_nd_505(void);
+extern sol_raw_uint8_t sea_nd_506(void);
+extern sol_raw_uint8_t sea_nd_507(void);
 struct sol_bool {
   sol_raw_uint8_t v;
 };
